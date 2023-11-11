@@ -1,0 +1,9 @@
+*.map
+*.swp
+*.txt
+*~
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+flexspi_nor_debug/

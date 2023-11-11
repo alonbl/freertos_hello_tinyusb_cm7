@@ -30,11 +30,11 @@ SET(EXECUTABLE_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
 SET(LIBRARY_OUTPUT_PATH ${ProjDirPath}/${CMAKE_BUILD_TYPE})
 
 
-project(freertos_hello_cm7)
+project(freertos_tinyusb_cm7)
 
 set(MCUX_BUILD_TYPES debug release sdram_debug sdram_release flexspi_nor_debug flexspi_nor_release)
 
-set(MCUX_SDK_PROJECT_NAME freertos_hello_cm7.elf)
+set(MCUX_SDK_PROJECT_NAME freertos_hello_tinyusb_cm7.elf)
 
 if (NOT DEFINED SdkRootDirPath)
 SET(SdkRootDirPath ${ProjDirPath}/)
@@ -54,13 +54,30 @@ add_executable(${MCUX_SDK_PROJECT_NAME}
 "${ProjDirPath}/board/pin_mux.c"
 "${ProjDirPath}/board/pin_mux.h"
 "${ProjDirPath}/source/FreeRTOSConfig.h"
-"${ProjDirPath}/source/freertos_hello.c"
+"${ProjDirPath}/source/freertos_hook.c"
+"${ProjDirPath}/source/main.c"
+"${ProjDirPath}/source/msc_disk.c"
+"${ProjDirPath}/source/tusb_config.h"
+"${ProjDirPath}/source/usb_descriptors.c"
+# usb common
+"${ProjDirPath}/tinyusb/src/tusb.c"
+"${ProjDirPath}/tinyusb/src/common/tusb_fifo.c"
+# usb device
+"${ProjDirPath}/tinyusb/src/device/usbd.c"
+"${ProjDirPath}/tinyusb/src/device/usbd_control.c"
+"${ProjDirPath}/tinyusb/src/class/cdc/cdc_device.c"
+"${ProjDirPath}/tinyusb/src/class/msc/msc_device.c"
+# usb driver
+"${ProjDirPath}/tinyusb/src/portable/chipidea/ci_hs/dcd_ci_hs.c"
 )
 
 target_include_directories(${MCUX_SDK_PROJECT_NAME} PRIVATE
-${ProjDirPath}/source
-${ProjDirPath}/board
+"${ProjDirPath}/source"
+"${ProjDirPath}/board"
+"${ProjDirPath}/tinyusb/src"
 )
+
+target_compile_options(${MCUX_SDK_PROJECT_NAME} PRIVATE "-DCFG_TUSB_MCU=OPT_MCU_MIMXRT1XXX")
 
 set_source_files_properties("${ProjDirPath}/source/FreeRTOSConfig.h" PROPERTIES COMPONENT_CONFIG_FILE "middleware_freertos-kernel_template")
 
@@ -77,7 +94,7 @@ target_link_libraries(${MCUX_SDK_PROJECT_NAME} PRIVATE ${TARGET_LINK_SYSTEM_LIBR
 TARGET_LINK_LIBRARIES(${MCUX_SDK_PROJECT_NAME} PRIVATE -Wl,--end-group)
 
 ADD_CUSTOM_COMMAND(TARGET ${MCUX_SDK_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_OBJCOPY}
--Obinary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/freertos_hello.bin)
+-Obinary ${EXECUTABLE_OUTPUT_PATH}/${MCUX_SDK_PROJECT_NAME} ${EXECUTABLE_OUTPUT_PATH}/freertos_hello_tinyusb.bin)
 
-set_target_properties(${MCUX_SDK_PROJECT_NAME} PROPERTIES ADDITIONAL_CLEAN_FILES "output.map;${EXECUTABLE_OUTPUT_PATH}/freertos_hello.bin")
+set_target_properties(${MCUX_SDK_PROJECT_NAME} PROPERTIES ADDITIONAL_CLEAN_FILES "output.map;${EXECUTABLE_OUTPUT_PATH}/freertos_hello_tinyusb.bin")
 

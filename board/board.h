@@ -12,17 +12,12 @@
 #include "fsl_common.h"
 #include "fsl_gpio.h"
 #include "fsl_clock.h"
-#if defined(CONFIG_BT_LOW_POWER_MODE) && (CONFIG_BT_LOW_POWER_MODE)
-#if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
-#include "fsl_component_button.h"
-#endif /* BUTTON_COUNT */
-#endif /* CONFIG_BT_LOW_POWER_MODE */
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*! @brief The board name */
-#define BOARD_NAME "MIMXRT1170-EVK"
+#define BOARD_NAME "MIMXRT1170-EVKB"
 #ifndef DEBUG_CONSOLE_UART_INDEX
 #define DEBUG_CONSOLE_UART_INDEX 1
 #endif
@@ -98,23 +93,6 @@
 #define BOARD_USER_BUTTON_IRQ_HANDLER GPIO13_Combined_0_31_IRQHandler
 #define BOARD_USER_BUTTON_NAME        "SW7"
 
-#if defined(CONFIG_BT_LOW_POWER_MODE) && (CONFIG_BT_LOW_POWER_MODE)
-#ifndef BUTTON_COUNT
-#define BUTTON_COUNT 1
-#endif
-#if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
-#define APP_WAKEUP_BUTTON               BOARD_USER_BUTTON_GPIO
-#define APP_WAKEUP_BUTTON_GPIO          13
-#define APP_WAKEUP_BUTTON_GPIO_PIN      BOARD_USER_BUTTON_GPIO_PIN
-#define APP_WAKEUP_BUTTON_DEFAULT_VALUE 1
-#define APP_WAKEUP_BUTTON_IRQ           BOARD_USER_BUTTON_IRQ
-#define APP_WAKEUP_BUTTON_IRQ_HANDLER   BOARD_USER_BUTTON_IRQ_HANDLER
-#define APP_WAKEUP_BUTTON_NAME          BOARD_USER_BUTTON_NAME
-
-extern button_config_t g_buttonConfig[];
-#endif /* BUTTON_COUNT */
-#endif /* CONFIG_BT_LOW_POWER_MODE */
-
 /*! @brief The board flash size */
 #define BOARD_FLASH_SIZE (0x1000000U)
 
@@ -124,7 +102,7 @@ extern button_config_t g_buttonConfig[];
 #endif
 
 /*! @brief The ENET0 PHY address. */
-#define BOARD_ENET0_PHY_ADDRESS (0x02U) /* Phy address of enet port 0. */
+#define BOARD_ENET0_PHY_ADDRESS (0x03U) /* Phy address of enet port 0. */
 
 /*! @brief The ENET1 PHY address. */
 #define BOARD_ENET1_PHY_ADDRESS (0x01U) /* Phy address of enet port 1. */
@@ -193,7 +171,6 @@ extern button_config_t g_buttonConfig[];
 #define BOARD_WIFI_SD_DETECT_TYPE kSDMMCHOST_DetectCardByHostDATA3
 
 #define BOARD_BT_UART_INSTANCE    7
-#define BOARD_BT_UART_BASEADDR    (uint32_t) LPUART7
 #define BOARD_BT_UART_BAUDRATE    3000000
 #define BOARD_BT_UART_CLK_FREQ    CLOCK_GetRootClockFreq(kCLOCK_Root_Lpuart7);
 #define BOARD_BT_UART_IRQ         LPUART7_IRQn
@@ -205,10 +182,6 @@ extern button_config_t g_buttonConfig[];
 #ifndef BOARD_NETWORK_USE_100M_ENET_PORT
 #define BOARD_NETWORK_USE_100M_ENET_PORT (0U)
 #endif
-
-/* Timer Manager definition. */
-#define BOARD_TM_INSTANCE   1
-#define BOARD_TM_CLOCK_ROOT kCLOCK_Root_Gpt1
 
 #if defined(__cplusplus)
 extern "C" {

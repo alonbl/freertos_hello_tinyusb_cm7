@@ -1,5 +1,6 @@
 /*
- * Copyright 2022 NXP
+ * Copyright 2020-2021 NXP
+ * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,15 +13,16 @@
 /*
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Pins v12.0
+product: Pins v9.0
 processor: MIMXRT1176xxxxx
 package_id: MIMXRT1176DVMAA
 mcu_data: ksdk2_0
-processor_version: 12.0.0
+processor_version: 0.9.6
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
 #include "fsl_common.h"
+#include "fsl_gpio.h"
 #include "fsl_iomuxc.h"
 #include "pin_mux.h"
 
@@ -39,8 +41,12 @@ void BOARD_InitBootPins(void) {
 BOARD_InitPins:
 - options: {callFromInitBoot: 'true', coreID: cm7, enableClock: 'true'}
 - pin_list:
-  - {pin_num: M15, peripheral: LPUART1, signal: RXD, pin_signal: GPIO_AD_25, software_input_on: Enable}
-  - {pin_num: L13, peripheral: LPUART1, signal: TXD, pin_signal: GPIO_AD_24}
+  - {pin_num: M13, peripheral: GPIO9, signal: 'gpio_io, 03', pin_signal: GPIO_AD_04, direction: OUTPUT}
+  - {pin_num: T5, peripheral: ARM, signal: arm_trace_swo, pin_signal: GPIO_LPSR_11, software_input_on: Disable, pull_up_down_config: Pull_Down, pull_keeper_select: Keeper,
+  - {pin_num: M15, peripheral: LPUART1, signal: RXD, pin_signal: GPIO_AD_25, software_input_on: Disable, pull_up_down_config: Pull_Down, pull_keeper_select: Keeper,
+    open_drain: Disable, drive_strength: High, slew_rate: Slow}
+  - {pin_num: L13, peripheral: LPUART1, signal: TXD, pin_signal: GPIO_AD_24, software_input_on: Disable, pull_up_down_config: Pull_Down, pull_keeper_select: Keeper,
+    open_drain: Disable, drive_strength: High, slew_rate: Slow}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
@@ -52,13 +58,57 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void) {
   CLOCK_EnableClock(kCLOCK_Iomuxc);           /* LPCG on: LPCG is ON. */
+  CLOCK_EnableClock(kCLOCK_Iomuxc_Lpsr);      /* LPCG on: LPCG is ON. */
+
+  /* GPIO configuration on GPIO_AD_04 (pin M13) */
+  gpio_pin_config_t gpio9_pinM13_config = {
+      .direction = kGPIO_DigitalOutput,
+      .outputLogic = 0U,
+      .interruptMode = kGPIO_NoIntmode
+  };
+  /* Initialize GPIO functionality on GPIO_AD_04 (pin M13) */
+  GPIO_PinInit(GPIO9, 3U, &gpio9_pinM13_config);
+
+  IOMUXC_SetPinMux(
+      IOMUXC_GPIO_AD_04_GPIO9_IO03,           /* GPIO_AD_04 is configured as GPIO9_IO03 */
+      0U);                                    /* Software Input On Field: Input Path is determined by functionality */
+  IOMUXC_SetPinMux(
+      IOMUXC_GPIO_LPSR_11_ARM_TRACE_SWO,      /* GPIO_LPSR_11 is configured as ARM_TRACE_SWO */
+      0U);                                    /* Software Input On Field: Input Path is determined by functionality */
+  IOMUXC_SetPinConfig(
+      IOMUXC_GPIO_LPSR_11_ARM_TRACE_SWO,      /* GPIO_LPSR_11 PAD functional properties : */
+      0x02U);                                 /* Slew Rate Field: Slow Slew Rate
+                                                 Drive Strength Field: high driver
+                                                 Pull / Keep Select Field: Pull Disable
+                                                 Pull Up / Down Config. Field: Weak pull down
+                                                 Open Drain LPSR Field: Disabled
+                                                 Domain write protection: Both cores are allowed
+                                                 Domain write protection lock: Neither of DWP bits is locked */
 
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_24_LPUART1_TXD,          /* GPIO_AD_24 is configured as LPUART1_TXD */
       0U);                                    /* Software Input On Field: Input Path is determined by functionality */
   IOMUXC_SetPinMux(
       IOMUXC_GPIO_AD_25_LPUART1_RXD,          /* GPIO_AD_25 is configured as LPUART1_RXD */
-      1U);                                    /* Software Input On Field: Force input path of pad GPIO_AD_25 */
+      0U);                                    /* Software Input On Field: Input Path is determined by functionality */
+  IOMUXC_SetPinConfig(
+      IOMUXC_GPIO_AD_24_LPUART1_TXD,          /* GPIO_AD_24 PAD functional properties : */
+      0x02U);                                 /* Slew Rate Field: Slow Slew Rate
+                                                 Drive Strength Field: high drive strength
+                                                 Pull / Keep Select Field: Pull Disable, Highz
+                                                 Pull Up / Down Config. Field: Weak pull down
+                                                 Open Drain Field: Disabled
+                                                 Domain write protection: Both cores are allowed
+                                                 Domain write protection lock: Neither of DWP bits is locked */
+  IOMUXC_SetPinConfig(
+      IOMUXC_GPIO_AD_25_LPUART1_RXD,          /* GPIO_AD_25 PAD functional properties : */
+      0x02U);                                 /* Slew Rate Field: Slow Slew Rate
+                                                 Drive Strength Field: high drive strength
+                                                 Pull / Keep Select Field: Pull Disable, Highz
+                                                 Pull Up / Down Config. Field: Weak pull down
+                                                 Open Drain Field: Disabled
+                                                 Domain write protection: Both cores are allowed
+                                                 Domain write protection lock: Neither of DWP bits is locked */
 }
 
 /***********************************************************************************************************************
